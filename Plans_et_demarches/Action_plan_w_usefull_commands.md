@@ -10,7 +10,7 @@
 
 ###### [01 -  Doc reading](#Doc)
 
-###### [02 - Creation of a resource group](#RG)
+###### [02 - Creation of a resource group and deployment of Voting-App](#RG)
 
 ###### [03 - Creating the pipeline](#Pipeline)
 
@@ -33,7 +33,15 @@
 &nbsp;&nbsp;&nbsp;[e) Grype](#Grype)  
 &nbsp;&nbsp;&nbsp;[f) OWASP Zap](#OWASP2)  
 
-###### [10 - Usefull Commands](#UsefullCommands)
+###### [10 - Installation of Prometheus and Grafana](#PromGraf)
+
+###### [11 - ](#)
+
+###### [12 - ](#)
+
+###### [13 - ](#)
+
+###### [ - Usefull Commands](#UsefullCommands)
 
 <div id='Scrum'/>  
 
@@ -52,45 +60,29 @@ Frequent meeting with other coworkers to study solutions to encountered problems
 
 #### **doc reading**
 
-Researches and reading of documentations to determine the needed prerequisites, functionnalities and softwares to complete the different tasks of Brief 9.
+Researches and reading of documentations to determine the needed prerequisites, functionnalities and softwares to complete the different tasks of Brief 10.
 
 [&#8679;](#top)  
 
 <div id='RG'/>  
 
-### **Creation of a resource group**
+### **Creation of a resource group and deployment of Voting-App**
 
-I created a resource group via the file script .sh (created beforehand). It was supposed to install nginx as well but I had an error message. it seemed that the https link (https://helm.nginx.com/stable) from nginx official site was not valid anymore.
+I created a resource group and deployed the Voting App via the file script .sh (created beforehand).
 
-After exchanging with Joffrey, i went to [artifacthub](https://artifacthub.io/packages/search?ts_query_web=nginx&sort=relevance&page=1) as he advised. This site is updated Bitnami with the current versions and links.
+Nginx was properly installed on both namespaces. I updated the DNS records IP addresses with the ones displaying thanks to my script.
 
-I searched for [nginx](https://artifacthub.io/packages/helm/bitnami/nginx) and updated my code with the right url. Then I updated the commands to install nginx on the namespaces with the right repo name (created before).
-
-![nginx_install_changes](https://user-images.githubusercontent.com/108001918/233959236-d5cd8517-96c3-4ae8-8c24-79d6e430b957.png)
-
-It still did not work. Therefore I created variables for the namespaces' names and put them in the commands to install nginx in each namespace. Then I updated the commands to extract the external IP addresses of each namespace (to put them in the DNS records smoothie-prod and smoothie-qua).
-
-Nginx was now properly installed on both namespaces. I updated the DNS records IP addresses with the ones displaying thanks to my script.
-
-Then i downloaded the kubeconfig file to update it in my GitHub repository :
+Then i downloaded the kubeconfig file to update it in my GitHub repository.
 
 ```Bash
 download kubeconfig.yaml
 ```
 
-When i tried to connect to the https url I had an error message. With the external IP address an Nginx page was displayed instead of the voting app. 
+The TLS was properly installed and functional and I could connect in https to the azure voting app (QUA and PROD).
 
-![nginx_page](https://user-images.githubusercontent.com/108001918/234233153-a0ba440f-a147-464c-86fc-3c1a42d6764e.png)
+My infrastructure is now deployed and functional. Therefore I can now start to install Prometheus and Grafana.
 
-Therefore, after deleting my infrastructure, I tried to install Nginx with the commands found on `https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx`.
-
-The issue was still the same, my certificates were in TRUE status, my external IP linked to the correct DNS name however I still had an error message when using the url to connect.
-
-![error_page-dns](https://user-images.githubusercontent.com/108001918/234233788-13e21955-9b3a-401d-9f97-2bdf7cbbe3ae.png)
-
-After exchanging with Quentin, we found out that the nginx from artifacthub was without configuration therefore did not install all the requirements we needed. As it would be difficult and time consuming to create a configuration and apply it, I cleared my broswer's cache and used the same commands and config I had from the start (https://helm.nginx.com/stable).
-
-I changed the let's encrypt (issuer) server to be able to request certificates and it solved my issue. My infrastructure is now deployed and I can connect in https to the azure voting app.
+*I am keeping the pipelines parts and security checking tools as well as it could be usefull in he future.*
 
 [&#8679;](#top)
 
@@ -98,18 +90,18 @@ I changed the let's encrypt (issuer) server to be able to request certificates a
 
 ### **Creating the pipeline**
 
-First I went to Azure DevOps, created a project and on Pipelines : <https://dev.azure.com/dlerouxext/b9duna/_build>.
+First I went to Azure DevOps, created a [project](https://dev.azure.com/dlerouxext/b10duna) and on Pipelines.
 
-Then, I had to configure my organization and project's [visibility](https://learn.microsoft.com/en-us/azure/devops/organizations/projects/make-project-public?view=azure-devops). I went to the settings and turned on the visibility to public.
+Then, I had to configure my organization and project's [visibility](https://learn.microsoft.com/en-us/azure/devops/organizations/projects/make-project-public?view=azure-devops). I went to the settings and turned on the visibility to private.
 
-Since the last update of Kubernetes, the connection to Azure can't be made with the service connections.  
-Therefore, I had to create a kubeconfig file that recovers several connections informations.
+*Since the last update of Kubernetes, the connection to Azure can't be made with the service connections.  
+Therefore, I used the kubeconfig file created from my script to recover the connections informations I need.*
 
 ```Bash
 az aks get-credentials --resource-group $rgname --name $aksname -f kubeconfig.yaml
 ```
 
-Then I had to download it and place it directly in my Git repository (downloading it from azure terminal does not push it into Git) :
+Then I downloaded it and placed it directly in my Git repository (downloading it from azure terminal does not push it into Git) :
 
 ```Bash
 download kubeconfig.yaml
@@ -117,11 +109,9 @@ download kubeconfig.yaml
 
 Once downloaded, I just had to put the code into the Kubernetes service connection (choosing autoConfig params) to be able to use my pipeline and Kubernetes services. I also added a Docker connection so my pipeline could access my Docker registry and Voting app image.
 
-![service_connection](https://user-images.githubusercontent.com/108001918/234296946-6a3e6e96-8d3c-43a6-bb98-13f73570440c.png)
+Then I created a new GitHub repository and copy/pasteed all the files from the previous repository from brief 9 : azVotingApp_b9duna and named it azVotingApp_b10duna.
 
-Then I created a new GitHub repository and copy/pasteed all the files from the previous repository from brief 8 : azVotingApp_b8duna and named it azVotingApp_b9duna.
-
-Finally i used the pipeline that was created during brief 8.
+Finally i used the pipeline that was created during brief 9.
 
 The pipeline is constructed in a specific order :
 
@@ -218,10 +208,26 @@ Once implemented, the administrator can click on `Review` during the pipeline pr
 
 Then the pipeline can run until it is stopped or completes all tasks.
 
-*NB : Because of quotas issues with Let's Encrypt, I had to change my server to staging to be able to continue testing. Therefore the curl task in my pipeline can't verify my certificate.  
-However with the other server (i would normally use) it would work perfectly (https://acme-staging-v02.api.letsencrypt.org/directory / https://acme-v02.api.letsencrypt.org/directory)*
+*NB : Because of quotas issues with Let's Encrypt, if the server chosen is <https://acme-staging-v02.api.letsencrypt.org/directory> the curl task in the pipeline can't verify the certificate.  
+However with the other server <https://acme-v02.api.letsencrypt.org/directory> it works perfectly.*
 
 [&#8679;](#top)
+
+<div id='PromGraf'/>  
+
+### **Installation of Prometheus and Grafana**
+
+In order to install Prometheus and Grafana, I followed this [tutorial](https://shailender-choudhary.medium.com/monitor-azure-kubernetes-service-aks-with-prometheus-and-grafana-8e2fe64d1314).
+
+I used Helm and the following commands :
+
+```bash
+
+```
+
+[&#8679;](#top)
+
+--------
 
 <div id='Definition'/>  
 
