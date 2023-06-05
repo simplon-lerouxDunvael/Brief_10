@@ -217,13 +217,56 @@ However with the other server <https://acme-v02.api.letsencrypt.org/directory> i
 
 ### **Installation of Prometheus and Grafana**
 
-In order to install Prometheus and Grafana, I followed this [tutorial](https://shailender-choudhary.medium.com/monitor-azure-kubernetes-service-aks-with-prometheus-and-grafana-8e2fe64d1314).
+In order to install Prometheus and Grafana, I followed this [tutorial](https://shailender-choudhary.medium.com/monitor-azure-kubernetes-service-aks-with-prometheus-and-grafana-8e2fe64d1314) and this [video](https://www.youtube.com/watch?v=nWKdpcqtMSs&ab_channel=MichaelLevan).
 
-I used Helm and the following commands :
+I used Helm and installed Prometheus with the following commands :
 
 ```bash
-
+# Define public Kubernetes chart repository in the Helm configuration
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# Update local repositories
+helm repo update
+# Search for newly installed repositories
+helm repo list
+# Create a namespace for Prometheus and Grafana resources and install Prometheus using HELM
+helm install prometheus \
+  prometheus-community/kube-prometheus-stack \
+  --namespace monitoring
+  --create-namespace
+# Check all resources in Prometheus Namespace
+kubectl get all -n prometheus
 ```
+
+Then I configured Prometheus and Grafana :
+
+```bash
+# Port forward the Prometheus service
+kubectl port-forward -n prometheus prometheus-prometheus-kube-prometheus-prometheus-0 9090
+```
+
+Then i tried to connect to Prometheus by typing `localhost:9090` but it failed.
+So I checked prometheus ip address and connected with `10.0.255.83:9090` but it still did not work.
+
+![image](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/15a891fe-8f51-4197-adb8-d7befd99d22f)
+
+![prometheus_cannot_connect](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/9d03e67c-c4c4-4b6f-a3a1-ee563bde2929)
+
+I decided to delete the namespace `prometheus` so I could create another one named `monitoring` to put Grafana et Loki as well.
+
+```bash
+kubectl delete pods --all -n prometheus
+kubectl delete deployments --all -n prometheus
+kubectl delete replicaset --all -n prometheus
+kubectl delete statefulset --all -n prometheus
+kubectl delete daemonset --all -n prometheus
+kubectl delete svc --all -n prometheus
+kubectl delete namespace prometheus
+```
+
+I checked with `kubectl get all -n prometheus` that no resources were displayed anymore and that no namespace was found too.
+
+But before all that, I had to create an ingress for Prometheus, Grafana and Loki. Meaning creating DNS records with all the needed files (certif, issuer and ingress, YAY).
+
 
 [&#8679;](#top)
 
