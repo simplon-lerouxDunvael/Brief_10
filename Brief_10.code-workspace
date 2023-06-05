@@ -9,5 +9,7 @@
 			"path": "../azVotingApp_b10duna"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"ansible.python.interpreterPath": "c:\\Users\\utilisateur\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
+	}
 }
