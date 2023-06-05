@@ -1,0 +1,155 @@
+# azure-vote.yaml
+
+# Deployment of Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: az-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-azure
+  template:
+    metadata:
+      labels:
+        app: redis-azure
+    spec:
+      volumes:
+        - name: redis-vol
+          persistentVolumeClaim:
+            claimName: redis-pvc
+      containers:
+      - name: redis
+        image: redis:latest
+        args: ["--requirepass", "$(REDIS_PWD)"]
+        volumeMounts:
+        - name: redis-vol
+          mountPath: /data
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "no"
+        - name: REDIS_PWD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret-duna
+              key: password
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 6379
+          name: redis
+---
+# Service for Redis (Cluster IP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec: # Par default le type est ClusterIP, il n'y a aucun raison de le spécifier (type: ClusterIP)
+  ports:
+  - port: 6379
+  selector:
+    app: redis-azure
+---
+# Deployment of Voting App
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alfred-votingapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: az-votingapp
+  template:
+    metadata:
+      labels:
+        app: az-votingapp
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: alfred-voting
+        image: simplonasa/azure_voting_app:v1.0.11
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 80
+        env:
+        - name: REDIS
+          value: "redis-service"
+        - name: REDIS_PWD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret-duna
+              key: password
+
+---
+# App Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: az-votingapp
+
+---
+# PV Claim creation
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+spec:
+  storageClassName: azurefile-csi
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+# Autoscale Voteapp
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scale-vote
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: alfred-votingapp
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+status:
+  observedGeneration: 1
+  lastScaleTime: 
+  currentReplicas: 1
+  desiredReplicas: 1
+  currentMetrics:
+  - type: Resource
+    resource:
+      name: cpu
+      current:
+        averageUtilization: 0
+        averageValue: 0

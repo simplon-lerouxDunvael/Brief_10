@@ -1,0 +1,274 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - azure-pipelines.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+- repo: self
+
+variables:
+  imageName: 'votingApp'
+  imageRepository: 'dunvael/custom-voting-app'
+  dockerfilePath: './Dockerfile'
+  kubernetesServiceEndpoint: 'KubernetesDunaConnection'
+  canaryTag: 'canary'
+
+# Build the docker image
+stages:
+- stage: Build
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Build and Push the Docker image to DockerHub'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'DockerHubConnection'
+        repository: $(imageRepository)
+        command: 'buildAndPush'
+        Dockerfile: $(dockerfilePath)
+        tags: 'latest'
+
+# Security Trivy
+- stage: TrivyScanSec
+  dependsOn: Build
+  jobs:
+    - job: ScanTrivy
+      displayName: 'Run Trivy security scan'
+      continueOnError: true
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - task: trivy@1
+        inputs:
+          version: 'latest'
+          debug: true
+          loginDockerConfig: true
+          image: 'dunvael/custom-voting-app'
+          severities: 'CRITICAL,HIGH,MEDIUM'
+          ignoreUnfixed: true
+        displayName: 'Run Trivy scan and save report'
+        # Save the Trivy report to a file in the $(Build.ArtifactStagingDirectory) directory so that it can be uploaded as an artifact in the next step.
+        # Check out the GitHub repository using a Personal Access Token (PAT) as a secure way to authenticate.
+        # The token should have the "repo" scope.
+      - checkout: self
+        persistCredentials: true
+        displayName: 'Checkout GitHub repository'
+        condition: always()
+          # Copy the Trivy report from the artifact staging directory to the local directory of the checked-out repository so that it can be committed and pushed to the remote repository.
+      - task: CmdLine@2
+        inputs:
+          script: |
+            mkdir reports
+            cp /tmp/trivy-results-0.*.json reports/trivy-report.json
+            git add reports/trivy-report.json
+            git config --global user.email "simplon.lerouxdunvael@gmail.com"
+            git config --global user.name "Simplon-lerouxDunvael"
+            git commit -m "Add Trivy report"
+            git push origin HEAD:main
+        displayName: 'Push Trivy report to GitHub'
+        condition: always()
+
+# Admin acknowledgement 1
+- stage: AdminVal
+  displayName: 'Admin Validation'
+  dependsOn: TrivyScanSec
+  jobs:
+  - job: waitForValidation
+    displayName: Wait for external validation  
+    pool: server    
+    timeoutInMinutes: 1440 # job times out in 3 days
+    steps:   
+    - task: ManualValidation@0
+      timeoutInMinutes: 120 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          simplon.lerouxdunvael@gmail.com
+          ReviewAdmin@domain.com
+        instructions: 'Trivy scan failed. Do you want to continue?'
+        onTimeout: 'reject'
+
+# Deploy to QUA
+- stage: DeployQUA
+  dependsOn: AdminVal
+  jobs:
+  - job: DeployToQUA
+    displayName: 'Deploy to QUA'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Kubernetes@1
+      displayName: Deploy to QUA
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(kubernetesServiceEndpoint)'
+        namespace: 'qua'
+        command: 'apply'
+        arguments: '-f ./k8s/deployment.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Container Registry'
+        dockerRegistryEndpoint: 'DockerHubConnection'
+
+# OWASP ZAP Scan
+- stage: OwaspZapScanSec
+  dependsOn: DeployQUA
+  jobs:
+    - job: ZapScan
+      displayName: 'Run OWASP Zap security scan'
+      continueOnError: true
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - task: owaspzap@1
+        inputs:
+          aggressivemode: true
+          scantype: 'targetedScan'
+          url: 'https://smoothie-qua.simplon-duna.space/'
+          port: '80, 443'
+        displayName: 'Run OWASP Zap scan and save report'
+        # Check out the GitHub repository using a Personal Access Token (PAT) as a secure way to authenticate.
+      - checkout: self
+        persistCredentials: true
+        displayName: 'Checkout GitHub repository'
+        condition: always()
+          # Copy the OWASP Zap report from the artifact staging directory to the local directory of the checked-out repository so that it can be committed and pushed to the remote repository.
+      - task: CmdLine@2
+        inputs:
+          script: |
+            mkdir reports
+            file=$(find . -name report.json)
+            cp "$file" reports/zap-report.json
+            git add reports/zap-report.json
+            git config --global user.email "simplon.lerouxdunvael@gmail.com"
+            git config --global user.name "Simplon-lerouxDunvael"
+            git commit -m "Add OWASP Zap test results"
+            git push origin HEAD:main
+        displayName: 'Push OWASP Zap report to GitHub'
+        condition: always()
+
+# Admin acknowledgement 2
+- stage: AdminVal2
+  displayName: 'Admin Validation'
+  dependsOn: OwaspZapScanSec
+  jobs:
+  - job: waitForValidation
+    displayName: Wait for external validation  
+    pool: server    
+    timeoutInMinutes: 1440 # job times out in 3 days
+    steps:   
+    - task: ManualValidation@0
+      timeoutInMinutes: 120 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          simplon.lerouxdunvael@gmail.com
+          ReviewAdmin@domain.com
+        instructions: 'OWASP Zap scan failed. Do you want to continue?'
+        onTimeout: 'reject'
+
+
+# Test QA service
+- stage: TestQUA
+  dependsOn: AdminVal2
+  jobs:
+  - job: TestQUAService
+    displayName: 'Test QUA Service'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        curl https://smoothie-qua.simplon-duna.space/
+      displayName: Test QUA Service with curl
+
+# Deploy Prod
+- stage: DeployProd
+  dependsOn: TestQUA
+  jobs:
+  - job: CanaryDeploy
+    displayName: 'Canary Deploy to Prod'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Kubernetes@1
+      displayName: Canary Deploy to Prod
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(kubernetesServiceEndpoint)'
+        namespace: 'prod'
+        command: 'apply'
+        arguments: '-f ./k8s/deployment-canary.yaml'
+
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: $(kubernetesServiceEndpoint)
+        namespace: 'prod'
+        command: 'login'
+
+    - task: Bash@3
+      inputs:
+        filePath: './testcanary.sh'
+
+    - task: Kubernetes@1
+      displayName: Promote Canary Deployment to Prod
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(kubernetesServiceEndpoint)'
+        namespace: 'prod'
+        command: 'apply'
+        arguments: '-f ./k8s/deployment.yaml'
+
+# testing Prod Service post canary
+- stage: TestProd
+  dependsOn: DeployProd
+  jobs:
+  - job: TestProdService
+    displayName: 'Test Prod Service'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        curl https://smoothie-prod.simplon-duna.space/
+      displayName: Test Prod Service with curl
+
+# Delete Canary
+- stage: DeleteCanary
+  dependsOn: TestProd
+  jobs:
+  - job: DeleteCanaryDeploy
+    displayName: 'Deletion of Canary Deployment'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(kubernetesServiceEndpoint)'
+        namespace: 'prod'
+        command: 'delete'
+        arguments: 'deployment alfred-voteapp-canary -n prod'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+
+# Signout
+- stage: SignOut
+  dependsOn: DeleteCanary
+  jobs:
+    - job: SigningOut
+      displayName: 'Signing Out'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - task: CmdLine@2
+        inputs:
+          script: |
+            echo Thank you for using Azure DevOps Pipeline.
+            echo
+            echo Have a good day !
