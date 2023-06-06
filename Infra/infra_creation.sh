@@ -30,7 +30,9 @@ az aks get-credentials --resource-group $rgname --name $aksname
 echo "AKS cluster credentials retrieved."
 
 # Install K9s
+echo "Installing K9s..."
 curl -sS https://webinstall.dev/k9s | bash
+echo "The watchdog is here."
 
 # Create Prod & Qua namespaces
 echo "Creating Prod & Qua namespaces for QAL & Public deploy"
