@@ -29,6 +29,9 @@ echo "Getting AKS cluster credentials..."
 az aks get-credentials --resource-group $rgname --name $aksname
 echo "AKS cluster credentials retrieved."
 
+# Install K9s
+curl -sS https://webinstall.dev/k9s | bash
+
 # Create Prod & Qua namespaces
 echo "Creating Prod & Qua namespaces for QAL & Public deploy"
 kubectl create namespace qua
@@ -164,4 +167,3 @@ echo "Let's check our ingresses"
 kubectl get ing --all-namespaces
 echo ""
 echo "Be sure to get the data from kubeconfig.yaml and remove it if it is created in your git."
-
