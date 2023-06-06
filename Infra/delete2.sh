@@ -16,3 +16,8 @@ kubectl delete statefulset --all -n monitoring
 kubectl delete daemonset --all -n monitoring
 kubectl delete svc --all -n monitoring
 kubectl delete namespace monitoring
+
+kubectl delete clusterrole prometheus-grafana-clusterrole
+kubectl delete clusterrole prometheus-kube-state-metrics
+kubectl delete clusterrole system:prometheus
+kubectl delete clusterrolebinding --all -n monitoring
