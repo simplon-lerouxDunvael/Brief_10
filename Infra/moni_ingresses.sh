@@ -93,11 +93,6 @@ echo "Alright, let's steam ahead !"
 echo "Let's check our certificates"
 kubectl get certificate --all-namespaces
 
-# Get admin password for grafana
-echo "Let's get the admin password for Grafana"
-kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-echo "The Grafana server can be accessed via port 80 on the following DNS name from within your cluster : grafana.monitoring.svc.cluster.local"
-echo "Get the Grafana URL to visit by running these commands in the same shell :"
-echo "export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")"
-echo "kubectl --namespace monitoring port-forward $POD_NAME 3000"
-echo "Login with the password from step 1 and the username : admin"
+# Display password for grafana
+echo "The default login is admin"
+echo "The default password is prom-operator"
