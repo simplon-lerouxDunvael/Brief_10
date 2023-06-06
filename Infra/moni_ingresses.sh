@@ -54,7 +54,7 @@ echo "Ingress configuration files applied."
 
 # Apply Issuer layer
 echo "Applying Let's Encrypt Issuer configuration files..."
-kubectl apply -f letsencrypt-issuer_moni.yaml -n $Moni
+kubectl apply -f issuer_moni.yaml -n $Moni
 echo "Let's Encrypt Issuer configuration files applied."
 
 # Create Gandi API token secret
