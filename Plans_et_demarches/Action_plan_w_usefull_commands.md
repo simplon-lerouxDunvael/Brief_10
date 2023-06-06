@@ -288,6 +288,12 @@ k delete ingressclass [ingressclass] --all-namespaces
 
 So I decided to delete my cluster and to redeploy it as it seemed that even if I deleted every resources it was not applying and kept disturbing my redeployment trials.
 
+Prometheus was now properly installed with Grafana and Loki however I could not connect to any of them (404 error : page not found).
+
+![all_ok](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/2a95c44b-6065-4635-82dd-39e2f2d0115b)
+
+![404error](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/df6f6b67-3e9d-4f02-b3fe-3df609add27b)
+
 [&#8679;](#top)
 
 --------
