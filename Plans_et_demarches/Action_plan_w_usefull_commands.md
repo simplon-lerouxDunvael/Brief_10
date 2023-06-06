@@ -267,6 +267,26 @@ I checked with `kubectl get all -n prometheus` that no resources were displayed 
 
 But before all that, I had to create an ingress for Prometheus, Grafana and Loki. Meaning creating DNS records with all the needed files (certif, issuer and ingress, YAY).
 
+When I tried to create via a script an Ingress for Prometheus, Grafana and Loki I had the following error message `Error: INSTALLATION FAILED: rendered manifests contain a resource that already exists. Unable to continue with install: ClusterRole "prometheus-kube-prometheus-operator" in namespace "" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key "meta.helm.sh/release-namespace" must equal "monitoring": current value is "prometheus"`.
+
+I tried several solutions I found in professionnal forums but none of them happened to work :
+
+```bash
+kubectl delete deployments --all -n monitoring
+kubectl delete pods --all -n monitoring
+kubectl delete replicaset --all -n monitoring
+kubectl delete statefulset --all -n monitoring
+kubectl delete daemonset --all -n monitoring
+kubectl delete svc --all -n monitoring
+kubectl delete namespace monitoring
+kubectl delete clusterrole prometheus-grafana-clusterrole
+kubectl delete clusterrole prometheus-kube-state-metrics
+kubectl delete clusterrole system:prometheus
+kubectl delete clusterrolebinding --all -n monitoring
+k delete ingressclass [ingressclass] --all-namespaces
+```
+
+So I decided to delete my cluster and to redeploy it as it seemed that even if I deleted every resources it was not applying and kept disturbing my redeployment trials.
 
 [&#8679;](#top)
 
