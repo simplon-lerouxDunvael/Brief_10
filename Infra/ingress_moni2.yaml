@@ -11,25 +11,31 @@ metadata:
 spec:
   ingressClassName: nginx-moni
   rules:
-  - host: smoothiemoni.simplon-duna.space
+  - host: smoothie-prometheus.simplon-duna.space
     http:
       paths:
       - pathType: Prefix
-        path: "/prometheus"
+        path: /
         backend:
           service:
             name: prometheus-kube-prometheus-prometheus
             port:
               number: 9090
+  - host: smoothie-grafana.simplon-duna.space
+    http:
+      paths:
       - pathType: Prefix
-        path: "/grafana"
+        path: /
         backend:
           service:
-            name: grafana
+            name: prometheus-grafana
             port:
               number: 80
+  - host: smoothie-loki.simplon-duna.space
+    http:
+      paths:
       - pathType: Prefix
-        path: "/loki"
+        path: /
         backend:
           service:
             name: loki
@@ -37,5 +43,7 @@ spec:
               number: 3100
   tls: # placing a host in the TLS config will determine what ends up in the cert's subjectAlt
   - hosts:
-    - smoothiemoni.simplon-duna.space
+    - smoothie-grafana.simplon-duna.space
+    - smoothie-prometheus.simplon-duna.space
+    - smoothie-loki.simplon-duna.space
     secretName: secret-tlsmoni # cert-manager will store the created certificate in this secret.
