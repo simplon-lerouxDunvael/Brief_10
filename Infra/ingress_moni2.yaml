@@ -1,0 +1,41 @@
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/issuer: letsencrypt
+    cert-manager.io/issuer-kind: Issuer
+    cert-manager.io/issuer-group: cert-manager.io
+spec:
+  ingressClassName: nginx-moni
+  rules:
+  - host: smoothiemoni.simplon-duna.space
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/prometheus"
+        backend:
+          service:
+            name: prometheus-kube-prometheus-prometheus
+            port:
+              number: 9090
+      - pathType: Prefix
+        path: "/grafana"
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
+      - pathType: Prefix
+        path: "/loki"
+        backend:
+          service:
+            name: loki
+            port:
+              number: 3100
+  tls: # placing a host in the TLS config will determine what ends up in the cert's subjectAlt
+  - hosts:
+    - smoothiemoni.simplon-duna.space
+    secretName: secret-tlsmoni # cert-manager will store the created certificate in this secret.
