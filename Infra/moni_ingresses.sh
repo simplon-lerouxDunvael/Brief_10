@@ -76,7 +76,7 @@ echo "Alright, let's steam ahead !"
 
 # Apply Certificate layer
 echo "Applying Certificate configuration files..."
-kubectl apply -f certif-moni.yaml -n monitoring
+kubectl apply -f certif_moni.yaml -n monitoring
 echo "Certificate configuration files applied."
 
 # Apply Ingress layer2
