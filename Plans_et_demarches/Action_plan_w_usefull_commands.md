@@ -529,6 +529,8 @@ kubectl get deployments
 kubectl get events
 kubectl get secrets
 kubectl get logs
+helm list --all-namespaces
+k get ingressclass --all-namespaces
 ```
 
 *To keep verifying the resources add --watch at the end of the command :*
@@ -596,7 +598,23 @@ kubectl delete deploy --all
 kubectl delete svc --all
 kubectl delete pvc --all
 kubectl delete pv --all
+kubectl delete ingress --all
+kubectl delete secrets --all
+kubectl delete certificates --all
 az group delete --name [resourceGroupName] --yes --no-wait
+
+kubectl delete deployments --all -n [namespaceName]
+kubectl delete pods --all -n [namespaceName]
+kubectl delete replicaset --all -n [namespaceName]
+kubectl delete statefulset --all -n [namespaceName]
+kubectl delete daemonset --all -n [namespaceName]
+kubectl delete svc --all -n [namespaceName]
+kubectl delete namespace [namespaceName]
+kubectl delete clusterrole prometheus-grafana-clusterrole
+kubectl delete clusterrole prometheus-kube-state-metrics
+kubectl delete clusterrole system:prometheus
+kubectl delete clusterrolebinding --all -n [namespaceName]
+k delete ingressclass [insert ingressclass] --all-namespaces
 ```
 
 [&#8679;](#top)
