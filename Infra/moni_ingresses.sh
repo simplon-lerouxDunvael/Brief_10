@@ -7,7 +7,7 @@ Moni="monitoring"
 echo "Installing Prometheus, Grafana & Loki..."
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
-helm repo add loki https://grafana.github.io/loki/charts # same https address
+helm repo add loki https://grafana.github.io/helm-charts # same https address
 helm repo update
 
 kubectl create namespace $Moni
