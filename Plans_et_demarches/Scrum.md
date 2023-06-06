@@ -9,11 +9,13 @@ Objectifs :
 Mardi 06/06/23  
 Résultats de la veille :
 
-* 
+* infrastructure avec TLS déployée
+* Doc commencée
+* Pipeline créée même si pas besoin
 
 Objectifs :
 
-* 
+* Déployer Grafana, Prometheus et Loki
 
 Mercredi 07/06/23 
 Résultats de la veille :
