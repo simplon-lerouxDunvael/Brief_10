@@ -219,30 +219,7 @@ However with the other server <https://acme-v02.api.letsencrypt.org/directory> i
 
 In order to install Prometheus and Grafana, I followed this [tutorial](https://shailender-choudhary.medium.com/monitor-azure-kubernetes-service-aks-with-prometheus-and-grafana-8e2fe64d1314) and this [video](https://www.youtube.com/watch?v=nWKdpcqtMSs&ab_channel=MichaelLevan).
 
-I used Helm and installed Prometheus with the following commands :
-
-```bash
-# Define public Kubernetes chart repository in the Helm configuration
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-# Update local repositories
-helm repo update
-# Search for newly installed repositories
-helm repo list
-# Create a namespace for Prometheus and Grafana resources and install Prometheus using HELM
-helm install prometheus \
-  prometheus-community/kube-prometheus-stack \
-  --namespace monitoring
-  --create-namespace
-# Check all resources in Prometheus Namespace
-kubectl get all -n prometheus
-```
-
-Then I configured Prometheus and Grafana :
-
-```bash
-# Port forward the Prometheus service
-kubectl port-forward -n prometheus prometheus-prometheus-kube-prometheus-prometheus-0 9090
-```
+I used Helm and installed Prometheus, Grafana and Loki.
 
 Then i tried to connect to Prometheus by typing `localhost:9090` but it failed.
 So I checked prometheus ip address and connected with `10.0.255.83:9090` but it still did not work.
@@ -293,6 +270,34 @@ Prometheus was now properly installed with Grafana and Loki however I could not 
 ![all_ok](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/2a95c44b-6065-4635-82dd-39e2f2d0115b)
 
 ![404error](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/df6f6b67-3e9d-4f02-b3fe-3df609add27b)
+
+So I decided to create a DNS record for each (Prometheus, Grafana and Loki) :
+
+* smoothie-prometheus.simplon-duna.space
+* smoothie-grafana.simplon-duna.space
+* smoothie-loki.simplon-duna.space
+
+![dns_records](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/5e35c7f2-0ab2-401a-876e-3690f93bf218)
+
+Then I updated ingress_moni1.yaml and ingress_moni2.yaml files : I changed their path to `/`, their service name, their host with the DNS records previously created and their port.
+
+![ingresses_updated](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/c43ec3d6-6814-4233-9f29-9704be44814a)
+
+I deleted the previous TLS secret and the previous certificate. Then I reapplied the files to get a new secret and certificate.
+
+Finally I connected to :
+
+* Prometheus : ![prometheus_working](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/55e2cfe5-b9d0-4f9f-8d98-76c0d29e183c)
+* Grafana : I entered the login `admin` and the default password `prom-operator`.
+
+![grafana_working](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/9e541463-f6a9-436d-865b-e8dbe0c95143)
+
+![grafana_dashbords](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/9ede62e1-ae1b-42e5-948e-0ff653ed842d)
+
+**ADD LOKI'S SCREENSHOT**
+
+Now I needed to create and configure the dashboards to rotate automatically.
+
 
 [&#8679;](#top)
 
