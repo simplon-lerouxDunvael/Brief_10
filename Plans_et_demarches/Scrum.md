@@ -20,11 +20,14 @@ Objectifs :
 Mercredi 07/06/23 
 Résultats de la veille :
 
-* 
+* Grafana, Prometheus deployés
+* Conexxion faite à Grafana et Prometheus
 
 Objectifs :
 
-* 
+* Finir de déployer Loki
+* Configurer les outils de supervision
+* Terminer le brief
 
 Jeudi 08/06/23  
 Résultats de la veille :
