@@ -21,7 +21,7 @@ Mercredi 07/06/23
 Résultats de la veille :
 
 * Grafana, Prometheus deployés
-* Conexxion faite à Grafana et Prometheus
+* Connexion faite à Grafana et Prometheus
 
 Objectifs :
 
@@ -32,11 +32,14 @@ Objectifs :
 Jeudi 08/06/23  
 Résultats de la veille :
 
-* 
+* Loki déployé
+* Grafana dashboards choisi
 
 Objectifs :
 
-* 
+* Faire la rotation des dashboards
+* Métrics et alertes notamment sur slack
+* Terminer le brief
 
 Vendredi 09/06/23  
 Résultats de la veille :
