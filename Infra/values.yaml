@@ -1,0 +1,68 @@
+retention: 7d
+
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      - api_url_file: /var/run/secrets/kubernetes.io/serviceaccount/alertmanager-secrets/slack_webhook
+        channel: '#alerts'
+    - name: 'email-notifications'
+      email_configs:
+      - to: 'laurent+alertes@lmathieu.com'
+        from: 'dunvaelleroux@gmail.com'
+        smarthost: smtp.gmail.com:587
+        auth_username: 'dunvaelleroux@gmail.com'
+        auth_identity: 'dunvaelleroux@gmail.com'
+        auth_password_file: /var/run/secrets/kubernetes.io/serviceaccount/alertmanager-secrets/smtp_password
+
+  extraVolumes:
+  - name: alertmanager-secrets
+    secret:
+      secretName: alertmanager-secrets
+  extraVolumeMounts:
+  - name: alertmanager-secrets
+    mountPath: /var/run/secrets/kubernetes.io/serviceaccount/alertmanager-secrets
+    readOnly: true
+
+prometheusRule:
+  enabled: true
+  rules:
+    clusterUsage:
+      - alert: MemoryUsageHighWarning
+        expr: (sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100 > 70
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+      - alert: MemoryUsageHighCritical
+        expr: (sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Very high memory usage
+      - alert: CPUUsageHighWarning
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[10m])) * 100) > 70
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+      - alert: CPUUsageHighCritical
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[10m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Very high CPU usage
