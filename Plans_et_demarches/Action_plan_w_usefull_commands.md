@@ -35,13 +35,9 @@
 
 ###### [10 - Installation of Prometheus and Grafana](#PromGraf)
 
-###### [11 - ](#)
+###### [11 - Creation and configuration of alerts and rotation of dashboards](#Dashboards)
 
-###### [12 - ](#)
-
-###### [13 - ](#)
-
-###### [ - Usefull Commands](#UsefullCommands)
+###### [12 - Usefull Commands](#UsefullCommands)
 
 <div id='Scrum'/>  
 
@@ -302,15 +298,18 @@ Finally I connected to :
 
 ![grafana_dashbords](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/9ede62e1-ae1b-42e5-948e-0ff653ed842d)
 
-**ADD LOKI'S SCREENSHOT**
 
-Now I needed to create and configure the dashboards to rotate automatically.
+[&#8679;](#top)
 
-I connected to Grafana and went to Dashboards > General > Kubernetes / Compute Resources / Namespace (Pods).
+<div id='Dashboards'/>  
+
+### **Creation and configuration of alerts and rotation of dashboards**
+
+Now I needed to create and configure the alerts and dashboards.
+
+I connected to Grafana and went to Dashboards, selected the dashboards I wanted by clicking on the star.
 
 ![grafana_dashbords](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/395f0a96-8dd5-4bec-89d0-bc0534cf87a9)
-
-I displayed the metrics from the pods of the namespaces (chosen from the scrolling menu).
 
 ![dashboards](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/0ca3dd0f-c17b-48be-a667-aa766fa73889)
 
