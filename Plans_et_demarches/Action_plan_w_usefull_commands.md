@@ -318,24 +318,52 @@ To be able to create new rules/alerts for metrics (CPU and memory), I had to cre
 
 In order for Prometheus alerting manager to be able to communicate with slack, it is necessary to create a secret on the kubernetes cluster and to encrypt the password and slack's webhook.
 
-The foolowing command allows to create the secret, encrypt the password and the webhook :
+The foolowing command allows to create the secret, encrypt the gmail password and the webhook :
 
 ```bash
 kubectl create secret generic alertmanager-secrets -n monitoring \
-  --from-literal=smtp_password=YourSmtpPassword \
-  --from-literal=slack_webhook=https://hooks.slack.com/services/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
+  --from-literal=smtp_password=[YourSmtpGmailPassword] \
+  --from-literal=slack_webhook=https://hooks.slack.com/services/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 
   ```
 
-As I learned that I could do the alerting from Grafana as it is slighlty annonying with Prometheus, I decided to stop with Prometheus and use Grafana's alerting manager (that uses Prometheus datas).
+As I learned that I could do the alerting from Grafana as it is slighlty annonying with Prometheus, I decided to stop with Prometheus and use Grafana's alerting manager (that uses Prometheus datas). I still kept the alertmanager secret as it is needed to be able to send mails (however smtp protocol is not working because it is blocked by AWS and Azure). Therefore I also configured a Slack contact point so the alerts would be send to the Slack organization that was created.
+
+![secret_alerting](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/84108048-ff1b-44a5-a0f6-5ac5e3e71e71)
+
+Then I updated the default contact point and added another one for Slack : 
+
+![contact_point](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/dae4576d-1ad7-4398-8ae9-f31869a1878a)
+
+![contact_point2](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/cea5696f-58fa-4aa0-a61d-a481bb98f2db)
+
+Then I could create a notification policy with the Slack contact point previously created :
+
+![notification_policy_updated](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/92b860c7-1e6f-49a4-8eda-02860eb0c28f)
 
 I checked several docs about alerts creation as it is a bit tricky at first :
 
 * [Beginner guide to create alerts](https://grafana.com/blog/2023/04/05grafana-alerting-a-beginners-guide-to-templating-alert-notifications/)
 * [Video to create Grafana alerts](https://www.google.fr/search?q=create+new+alerts+grafana+with+code&hl=fr&sxsrf=APwXEdcGMcZR_KFNlu357BAtWfkp4lY6bg%3A1686229993663&ei=6dOBZPOGJPWpkdUP2-Sb6Ak&ved=0ahUKEwizn5ye4LP_AhX1VKQEHVvyBp0Q4dUDCBA&uact=5&oq=create+new+alerts+grafana+with+code&gs_lcp=Cgxnd3Mtd2l6LXNlcnAQAzIFCCEQoAEyBAghEBU6CggAEEcQ1gQQsAM6BggAEBYQHjoICCEQFhAeEB1KBAhBGABQmwRYuxdghRtoA3ABeACAAX6IAf8HkgEEMTEuMZgBAKABAcABAcgBCA&sclient=gws-wiz-serp#fpstate=ive&vld=cid:31d25361,vid:qA6RSB4Uxto)
 
+Then I created two alerts (warning and critical) for both CPU and Memory :
 
+![alerts_created](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/9b1664c0-9871-4145-92c1-bf29d2110ab8)
 
-Then I setup the dashboards rotation by going to :
+To do so :
+
+* Provided the alert name
+* Provided the metrics browser to check
+* Completed the threshold and chose Reduce, Last, A and Strict
+* Clicked on Preview to see if the graph was displaying (meaning the metrics chosen were correctly put in a formula)
+* Chose a folder for my rule (created one) and its group (created as well with an interval of 1 minute as it must be smaller than the alert behavior evaluation time)
+* Put a summary and a description of the alert
+* Saved
+
+![alerts1](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/198875e7-1eb0-4ab3-801b-6bbcb6f15d6d)
+
+![alerts2](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/20ddd4cd-bd5a-4728-b33e-0da4bdc2bafb)
+
+Finally I set up the dashboards rotation( by following this [guide](https://grafana.com/docs/grafana/latest/dashboards/create-manage-playlists/)) and going to :
 
 * Dashboards
 * Playlists
