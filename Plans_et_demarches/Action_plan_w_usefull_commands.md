@@ -314,7 +314,17 @@ I displayed the metrics from the pods of the namespaces (chosen from the scrolli
 
 ![dashboards](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/0ca3dd0f-c17b-48be-a667-aa766fa73889)
 
+To be able to create new rules/alerts for metrics (CPU and memory), I had to create a .yaml file and complete it with several datas (for example slack's webhook). But in order to receive the mails from grafana's alerts, I had to activate the smtp protocol from Gmail as I used a gmail account to connect to slack.
 
+In order for Prometheus alerting manager to be able to communicate with slack, it is necessary to create a secret on the kubernetes cluster and to encrypt the password and slack's webhook.
+
+The foolowing command allows to create the secret, encrypt the password and the webhook :
+
+```bash
+kubectl create secret generic alertmanager-secrets -n monitoring \
+  --from-literal=smtp_password=YourSmtpPassword \
+  --from-literal=slack_webhook=https://hooks.slack.com/services/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
+  ```
 
 [&#8679;](#top)
 
