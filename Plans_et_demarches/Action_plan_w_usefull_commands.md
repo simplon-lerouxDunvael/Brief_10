@@ -323,8 +323,31 @@ The foolowing command allows to create the secret, encrypt the password and the 
 ```bash
 kubectl create secret generic alertmanager-secrets -n monitoring \
   --from-literal=smtp_password=YourSmtpPassword \
-  --from-literal=slack_webhook=https://hooks.slack.com/services/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
+  --from-literal=slack_webhook=https://hooks.slack.com/services/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
   ```
+
+As I learned that I could do the alerting from Grafana as it is slighlty annonying with Prometheus, I decided to stop with Prometheus and use Grafana's alerting manager (that uses Prometheus datas).
+
+I checked several docs about alerts creation as it is a bit tricky at first :
+
+* [Beginner guide to create alerts](https://grafana.com/blog/2023/04/05grafana-alerting-a-beginners-guide-to-templating-alert-notifications/)
+* [Video to create Grafana alerts](https://www.google.fr/search?q=create+new+alerts+grafana+with+code&hl=fr&sxsrf=APwXEdcGMcZR_KFNlu357BAtWfkp4lY6bg%3A1686229993663&ei=6dOBZPOGJPWpkdUP2-Sb6Ak&ved=0ahUKEwizn5ye4LP_AhX1VKQEHVvyBp0Q4dUDCBA&uact=5&oq=create+new+alerts+grafana+with+code&gs_lcp=Cgxnd3Mtd2l6LXNlcnAQAzIFCCEQoAEyBAghEBU6CggAEEcQ1gQQsAM6BggAEBYQHjoICCEQFhAeEB1KBAhBGABQmwRYuxdghRtoA3ABeACAAX6IAf8HkgEEMTEuMZgBAKABAcABAcgBCA&sclient=gws-wiz-serp#fpstate=ive&vld=cid:31d25361,vid:qA6RSB4Uxto)
+
+
+
+Then I setup the dashboards rotation by going to :
+
+* Dashboards
+* Playlists
+* Create a playlist
+* Add dashboards
+* Save
+
+![dashboards_rotation](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/5fb9d2ec-fd5e-487c-af45-c2b3ab125827)
+
+Then, by clicking on play Playlist, it is possible de select what type of mode and Autofit (Panel heights will be adjusted to fit screen size) :
+
+![mode_rotation](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/97472d03-cada-4700-9f72-0ba087bf3f67)
 
 [&#8679;](#top)
 
