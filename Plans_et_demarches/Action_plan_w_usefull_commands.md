@@ -271,6 +271,14 @@ Prometheus was now properly installed with Grafana and Loki however I could not 
 
 ![404error](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/df6f6b67-3e9d-4f02-b3fe-3df609add27b)
 
+I installed K9s in order to check logs. To connect to it, I opened a terminal and typed `k9s` and clicked `Enter`. 
+
+![k9s](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/1494fbdc-d11c-488a-900e-4a047de71034)
+
+To get out of the graphic interface, I just clicked on `Ctrl + C`.
+
+![k9s-2](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/59a34173-8d39-41f9-addc-08bfe89d693b)
+
 So I decided to create a DNS record for each (Prometheus, Grafana and Loki) :
 
 * smoothie-prometheus.simplon-duna.space
@@ -297,6 +305,15 @@ Finally I connected to :
 **ADD LOKI'S SCREENSHOT**
 
 Now I needed to create and configure the dashboards to rotate automatically.
+
+I connected to Grafana and went to Dashboards > General > Kubernetes / Compute Resources / Namespace (Pods).
+
+![grafana_dashbords](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/395f0a96-8dd5-4bec-89d0-bc0534cf87a9)
+
+I displayed the metrics from the pods of the namespaces (chosen from the scrolling menu).
+
+![dashboards](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/0ca3dd0f-c17b-48be-a667-aa766fa73889)
+
 
 
 [&#8679;](#top)
