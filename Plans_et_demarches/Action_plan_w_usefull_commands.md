@@ -315,7 +315,7 @@ I connected to Grafana and went to Dashboards, selected the dashboards I wanted 
 
 To be able to create new rules/alerts for metrics (CPU and memory), I had to create a .yaml file and complete it with several datas (for example slack's webhook). But in order to receive the mails from grafana's alerts, I had to activate the smtp protocol from Gmail as I used a gmail account to connect to slack.
 
-In order for Prometheus alerting manager to be able to communicate with slack, it is necessary to create a secret on the kubernetes cluster and to encrypt the password and slack's webhook.
+In order for Prometheus alerting manager to be able to communicate with [slack](https://app.slack.com/client/T05B4UZ94SK/C05BY5F9AF3), it is necessary to create a secret on the kubernetes cluster and to encrypt the password and slack's webhook.
 
 The foolowing command allows to create the secret, encrypt the gmail password and the webhook :
 
