@@ -1,0 +1,10 @@
+# This file is a memo for the smtp part to be changed in the grafana.ini file. 
+## DO NOT DEPLOY
+
+[smtp]
+enabled = true
+host = smtp.sendgrid.net:587
+user = apikey
+password = "[YOUR_SENDGRID_API_KEY]" # If the password contains # or ; you have to wrap it with trippel quotes. Ex """#password;"""
+from_address = [OFFICIAL WORK EMAIL ADDRESS] # From address for emails
+from_name = Grafana # From name for emails
