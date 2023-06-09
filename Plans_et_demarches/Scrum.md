@@ -44,9 +44,12 @@ Objectifs :
 Vendredi 09/06/23  
 Résultats de la veille :
 
-* 
+* Alertes faites
+* Rotation dashboards faite
+* Brief terminé
+* SMTP techniquement configuré
 
 Objectifs :
 
-* 
+* Faire la présentation
 
