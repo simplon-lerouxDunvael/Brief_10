@@ -370,11 +370,21 @@ Finally I set up the dashboards rotation( by following this [guide](https://graf
 * Add dashboards
 * Save
 
-![dashboards_rotation](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/5fb9d2ec-fd5e-487c-af45-c2b3ab125827)
+![dashboards_rotation](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/ac8cf0da-e6ab-4d7d-b2b1-56450bd2e451)
 
 Then, by clicking on play Playlist, it is possible de select what type of mode and Autofit (Panel heights will be adjusted to fit screen size) :
 
 ![mode_rotation](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/97472d03-cada-4700-9f72-0ba087bf3f67)
+
+The Microsoft service [Twilio SendGrid](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/sendgrid.tsg-saas-offer/selectionMode~/false/resourceGroupId//resourceGroupLocation//dontDiscardJourney~/false/selectedMenuId/home/launchingContext~/%7B%22galleryItemId%22%3A%22sendgrid.tsg-saas-offerfree-100-2022%22%2C%22source%22%3A%5B%22GalleryFeaturedMenuItemPart%22%2C%22VirtualizedTileDetails%22%5D%2C%22menuItemId%22%3A%22home%22%2C%22subMenuItemId%22%3A%22Search%20results%22%2C%22telemetryId%22%3A%2264ff8b6b-e77e-4949-a3e8-b6a6c8747740%22%7D/searchTelemetryId/7794dbc9-a88b-44b5-9207-c23be102380e/isLiteSearchFlowEnabled~/false) allows to send email communications with an azure subscription (one per subscription only). 
+
+![sendgrid](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/190041d7-5bba-4bbd-8cc0-4dfac4f95e9f)
+
+After activating Twilio Sendgrid, I just need to update Grafana's configuration (the grafana.ini file).
+
+![smtp_file](https://github.com/simplon-lerouxDunvael/Brief_10/assets/108001918/a87ca79b-4528-4852-8d10-6b733a689148)
+
+Then I just need to restart Grafana (so its pod). There are several ways to do so depending on the resources and informations I can have. It is all documented in this [guide](https://spacelift.io/blog/restart-kubernetes-pods-with-kubectl).
 
 [&#8679;](#top)
 
